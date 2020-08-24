@@ -88,6 +88,49 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
     return matmul
 
 
+def csrmm_libxsmm(data, indices, indptr, weight, bias=None):
+    # pylint: disable=invalid-name
+    """The libxsmm implementation of csrmm in topi.
+
+    Parameters
+    ----------
+    data : tvm.te.Tensor
+        1-D with shape [nonzeros]
+
+    indices : tvm.te.Tensor
+        1-D with shape [nonzeros]
+
+    indptr : tvm.te.Tensor
+        1-D with shape [m+1]
+
+    weight : tvm.te.Tensor
+        2-D with shape [k, n]
+
+    bias : tvm.te.Tensor, optional
+        1-D with shape [m]
+
+    Returns
+    -------
+    output : tvm.te.Tensor
+        2-D with shape [m, n]
+    """
+    assert len(data.shape) == 1 and len(indices.shape) == 1 and len(indptr.shape) == 1 \
+        and len(weight.shape) == 2, "only support 2-dim csrmm"
+    assert isinstance(weight, te.tensor.Tensor), \
+        "weight matrix is assumed to be tvm.te.Tensor, but weight is `%s`" % (type(weight))
+    if bias is not None:
+        assert len(bias.shape) == 1
+    M = simplify(indptr.shape[0]-1)
+    K, N = weight.shape
+
+    #oshape = (M, N)
+    #matmul = te.extern(oshape, [data, indices, indptr, weight],
+    #                   lambda ins, outs: sparse.csrmm(ins[0], ins[1], ins[2], ins[3], outs[0]),
+    #                   tag="csrmm", dtype='float32', name='out')
+
+    return sparse.csrmm(a.data, a.indices, a.indptr, M, K, N, b)
+    #return matmul
+
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,
     where `B` and `C` are dense matrices, `A` is an m-by-k sparse matrix in the CSR format.
@@ -108,4 +151,9 @@ def csrmm(a, b, c=None):
     output : tvm.te.Tensor
         2-D with shape [m, n]
     """
-    return csrmm_default(a.data, a.indices, a.indptr, b, c)
+    #return csrmm_default(a.data, a.indices, a.indptr, b, c)
+    return csrmm_libxsmm(a.data, a.indices, a.indptr, b, c)
+
+
+#def csrmm_libxsmm(a, b, c=None):
+#    return sparse.csrmm(a.data, a.indices, a.indptr, b, c)

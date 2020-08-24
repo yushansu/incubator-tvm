@@ -154,6 +154,9 @@ set(USE_OPENMP none)
 # Whether use contrib.random in runtime
 set(USE_RANDOM ON)
 
+# Whether use contrib.random in runtime
+set(USE_SPARSE ON)
+
 # Whether use NNPack
 set(USE_NNPACK OFF)
 
