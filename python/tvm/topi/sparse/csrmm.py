@@ -20,6 +20,7 @@ import tvm
 from tvm import te
 from .. import tag
 from ..util import simplify
+import tvm._ffi
 
 def csrmm_default(data, indices, indptr, weight, bias=None):
     # pylint: disable=invalid-name
@@ -123,13 +124,10 @@ def csrmm_libxsmm(data, indices, indptr, weight, bias=None):
     M = simplify(indptr.shape[0]-1)
     K, N = weight.shape
 
-    #oshape = (M, N)
-    #matmul = te.extern(oshape, [data, indices, indptr, weight],
-    #                   lambda ins, outs: sparse.csrmm(ins[0], ins[1], ins[2], ins[3], outs[0]),
-    #                   tag="csrmm", dtype='float32', name='out')
 
-    return sparse.csrmm(a.data, a.indices, a.indptr, M, K, N, b)
-    #return matmul
+    matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
+
+    return matmul(a.data, a.indices, a.indptr, M, K, N, b)
 
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,

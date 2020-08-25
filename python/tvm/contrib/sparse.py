@@ -177,3 +177,16 @@ def placeholder(shape, nonzeros=None, dtype=None, name="placeholder", stype=None
     else:
         raise NotImplementedError('stype=%s is not supported yet.' % (stype,))
     return ret
+
+# def matmul():
+#     n = 
+#     m = 
+#     return te.extern(
+#         (m, n),
+#         [lhs, rhs],
+#         lambda ins, outs: tvm.tir.call_packed(
+#             "tvm.contrib.sparse.csrmm", ins[0]
+#         ),
+#         name="C",
+#         *kwargs
+#     )
