@@ -25,7 +25,8 @@ struct csrmmOp {
     }
 
     void (*csrmm_func)(int*, int*, float*, int, int, int, float*, float*);
-    *(void**) (&csrmm_func) = dlsym(handle, "jiacsrmm");
+    // *(void**) (&csrmm_func) = dlsym(handle, "jiacsrmm");
+    *(void**) (&csrmm_func) = dlsym(handle, "_Z8jiacsrmmPiS_PfiiiS0_S0_");
         if ((error = dlerror()) != NULL)  {
             fputs(error, stderr);
             exit(1);
@@ -47,11 +48,11 @@ TVM_REGISTER_GLOBAL("tvm.contrib.sparse.csrmm").set_body([](TVMArgs args, TVMRet
   void* colptr = args[0];
   void* rowidx = args[1];
   void* values = args[2];
-  int N = args[3];
-  int K = args[4];
-  int C = args[5];
-  void* l_a = args[6];
-  void* l_c = args[7];
+  void* l_a = args[3];
+  void* l_c = args[4];
+  int N = args[5];
+  int K = args[6];
+  int C = args[7];
 
   csrmmOp()(static_cast<int*>(colptr), static_cast<int*>(rowidx), static_cast<float*>(values), N, K, C, static_cast<float*>(l_a), static_cast<float*>(l_c));
 });

@@ -8,7 +8,7 @@ namespace contrib {
 
 using namespace runtime;
 
-void csrmm_func(int* colptr, int* rowidx, float* values, int N, int K, int C, float* l_a, float* l_c);
+void jiacsrmm(int* colptr, int* rowidx, float* values, int N, int K, int C, float* l_a, float* l_c);
 
 }
 }

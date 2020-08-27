@@ -19,6 +19,16 @@ if(USE_SPARSE)
   message(STATUS "Build with contrib.sparse")
   file(GLOB SPARSE_CONTRIB_SRC src/runtime/contrib/sparse/csrmm.cc)
   list(APPEND RUNTIME_SRCS ${SPARSE_CONTRIB_SRC})
+  include_directories(/home/ubuntu/libxsmm/include)
+
+  #find_library(SPARSEMM_LIB1 libxsmm.a /home/ubuntu/libxsmm/lib/)
+  #find_library(SPARSEMM_LIB2 libxsmmnoblas.a /home/ubuntu/libxsmm/lib/)
+  #find_library(SPARSEMM_LIB3 libxsmmext.a /home/ubuntu/libxsmm/lib/)
+
+  list(APPEND TVM_RUNTIME_LINKER_LIBS /home/ubuntu/libxsmm/lib/libxsmm.a)
+  list(APPEND TVM_RUNTIME_LINKER_LIBS /home/ubuntu/libxsmm/lib/libxsmmnoblas.a)
+  list(APPEND TVM_RUNTIME_LINKER_LIBS /home/ubuntu/libxsmm/lib/libxsmmext.a)
+
   #file(GLOB SPARSE_CONTRIB_SRC /home/ubuntu/blockSparse/csrmm-libxsmm-onekernel/csrmm.so)
   #list(APPEND RUNTIME_SRCS ${SPARSE_CONTRIB_SRC})
   #list(APPEND TVM_RUNTIME_LINKER_LIBS /home/ubuntu/blockSparse/csrmm-libxsmm-onekernel/csrmm.so)

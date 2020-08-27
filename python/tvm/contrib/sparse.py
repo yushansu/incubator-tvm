@@ -182,10 +182,27 @@ def placeholder(shape, nonzeros=None, dtype=None, name="placeholder", stype=None
 def csrmatmul(data, indices, indptr, M, K, N, weight):
     # arg 1 shape of output tensors
     # arg 2 list of inputs
+    def csrmm_default_ir(data, indices, indptr, weight, out):
+        """define ir for csrmm"""
+        # irb = tvm.tir.ir_builder.create()
+        # data_ptr = irb.buffer_ptr(data)
+        # indices_ptr = irb.buffer_ptr(indices)
+        # indptr_ptr = irb.buffer_ptr(indptr)
+        # weight_ptr = irb.buffer_ptr(weight)
+        # out_ptr = irb.buffer_ptr(out)
+        # return data_ptr, indices_ptr, indptr_ptr, weight_ptr, out_ptr
+
+
+
     return te.extern(
         (M, N),
-        [data, indices, indptr, weight],
+        #[data, indices, indptr, weight],
+        #[indices, indptr, data, weight],
+        [indptr, indices, data, weight],
         lambda ins, outs: tvm.tir.call_packed(
-            "tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], M, K, N, ins[3], outs[0]
+            "tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], ins[3], outs[0], M, K, N
         ),
+        #lambda ins, outs: tvm.tir.call_packed(
+        #    "tvm.contrib.sparse.csrmm", csrmm_default_ir(ins[0], ins[1], ins[2], ins[3], outs[0]), M, K, N,
+        #),
         name="C", dtype="float32")

@@ -58,6 +58,7 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
         assert len(bias.shape) == 1
     M = simplify(indptr.shape[0]-1)
     _, N = weight.shape
+    print(indptr[0])
     def csrmm_default_ir(data, indices, indptr, weight, out):
         """define ir for csrmm"""
         irb = tvm.tir.ir_builder.create()
@@ -93,42 +94,39 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
 
 def csrmm_libxsmm(data, indices, indptr, weight, bias=None, out_dtype='float32'):
     # pylint: disable=invalid-name
-    """The libxsmm implementation of csrmm in topi.
-
-    Parameters
-    ----------
-    data : tvm.te.Tensor
-        1-D with shape [nonzeros]
-
-    indices : tvm.te.Tensor
-        1-D with shape [nonzeros]
-
-    indptr : tvm.te.Tensor
-        1-D with shape [m+1]
-
-    weight : tvm.te.Tensor
-        2-D with shape [k, n]
-
-    bias : tvm.te.Tensor, optional
-        1-D with shape [m]
-
-    Returns
-    -------
-    output : tvm.te.Tensor
-        2-D with shape [m, n]
-    """
     assert len(data.shape) == 1 and len(indices.shape) == 1 and len(indptr.shape) == 1 \
         and len(weight.shape) == 2, "only support 2-dim csrmm"
     assert isinstance(weight, te.tensor.Tensor), \
         "weight matrix is assumed to be tvm.te.Tensor, but weight is `%s`" % (type(weight))
     #if bias is not None:
     #    assert len(bias.shape) == 1
+    # irb = tvm.tir.ir_builder.create()
+    # data_ptr = irb.buffer_ptr(data)
+    # indices_ptr = irb.buffer_ptr(indices)
+    # indptr_ptr = irb.buffer_ptr(indptr)
+    # weight_ptr = irb.buffer_ptr(weight)
+    # out_ptr = irb.buffer_ptr(out)
+
     M = simplify(indptr.shape[0]-1)
     K, N = weight.shape
 
+    # print("data")
+    # print(data.shape)
+
+    # print("indices")
+    # print(indices.shape)
+
+    # print("indptr")
+    # print(indptr.shape)
+
+    # for i in range(10):
+    #   print(indptr_ptr[i])
+
     #matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
 
-    return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
+    #return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
+    return sparse.csrmatmul(indices, indptr, data, M, K, N, weight)
+    #return sparse.csrmatmul(indptr_ptr, indices_ptr, data_ptr, M, K, N, weight_ptr)
 
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,
