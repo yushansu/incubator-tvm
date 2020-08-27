@@ -22,6 +22,8 @@ from .. import tag
 from ..util import simplify
 import tvm._ffi
 
+from tvm.contrib import sparse
+
 def csrmm_default(data, indices, indptr, weight, bias=None):
     # pylint: disable=invalid-name
     """The default implementation of csrmm in topi.
@@ -89,7 +91,7 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
     return matmul
 
 
-def csrmm_libxsmm(data, indices, indptr, weight, bias=None):
+def csrmm_libxsmm(data, indices, indptr, weight, bias=None, out_dtype='float32'):
     # pylint: disable=invalid-name
     """The libxsmm implementation of csrmm in topi.
 
@@ -119,15 +121,14 @@ def csrmm_libxsmm(data, indices, indptr, weight, bias=None):
         and len(weight.shape) == 2, "only support 2-dim csrmm"
     assert isinstance(weight, te.tensor.Tensor), \
         "weight matrix is assumed to be tvm.te.Tensor, but weight is `%s`" % (type(weight))
-    if bias is not None:
-        assert len(bias.shape) == 1
+    #if bias is not None:
+    #    assert len(bias.shape) == 1
     M = simplify(indptr.shape[0]-1)
     K, N = weight.shape
 
+    #matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
 
-    matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
-
-    return matmul(a.data, a.indices, a.indptr, M, K, N, b)
+    return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
 
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,

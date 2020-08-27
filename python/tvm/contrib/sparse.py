@@ -17,6 +17,7 @@
 """Tensor and Operation class for computation declaration."""
 # pylint: disable=invalid-name
 import numpy as _np
+import tvm
 from tvm.runtime import ndarray as _nd
 from tvm import te
 from tvm.tir import expr as _expr
@@ -178,15 +179,13 @@ def placeholder(shape, nonzeros=None, dtype=None, name="placeholder", stype=None
         raise NotImplementedError('stype=%s is not supported yet.' % (stype,))
     return ret
 
-# def matmul():
-#     n = 
-#     m = 
-#     return te.extern(
-#         (m, n),
-#         [lhs, rhs],
-#         lambda ins, outs: tvm.tir.call_packed(
-#             "tvm.contrib.sparse.csrmm", ins[0]
-#         ),
-#         name="C",
-#         *kwargs
-#     )
+def csrmatmul(data, indices, indptr, M, K, N, weight):
+    # arg 1 shape of output tensors
+    # arg 2 list of inputs
+    return te.extern(
+        (M, N),
+        [data, indices, indptr, weight],
+        lambda ins, outs: tvm.tir.call_packed(
+            "tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], M, K, N, ins[3], outs[0]
+        ),
+        name="C", dtype="float32")

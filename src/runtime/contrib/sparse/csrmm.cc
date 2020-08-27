@@ -1,6 +1,7 @@
 #include <dmlc/logging.h>
 #include <tvm/runtime/data_type.h>
 #include <tvm/runtime/registry.h>
+#include <dlfcn.h>
 
 extern "C" {
 #include "csrmm.h"
@@ -15,7 +16,26 @@ struct csrmmOp {
 
   void operator()(int* colptr, int* rowidx, float* values, int N, int K, int C, float* l_a, float* l_c) {
     // typedef float TDatatype;
-    csrmm(colptr, rowidx, values, N, K, C, l_a);
+    // const char *filename = "/home/ubuntu/blockSparse/csrmm-libxsmm-onekernel/csrmm.so";
+    void* handle = dlopen("/home/ubuntu/blockSparse/csrmm-libxsmm-onekernel/csrmm.so", RTLD_LAZY);
+    char* error;
+    if (!handle) {
+            fputs (dlerror(), stderr);
+            exit(1);
+    }
+
+    void (*csrmm_func)(int*, int*, float*, int, int, int, float*, float*);
+    *(void**) (&csrmm_func) = dlsym(handle, "jiacsrmm");
+        if ((error = dlerror()) != NULL)  {
+            fputs(error, stderr);
+            exit(1);
+    }
+
+
+    // (*csrmm_func)(colptr, rowidx, values, N, K, C, l_a, l_c);
+    csrmm_func(colptr, rowidx, values, N, K, C, l_a, l_c);
+
+    dlclose(handle);
 
   }
 

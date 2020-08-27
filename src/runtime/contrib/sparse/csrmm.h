@@ -8,7 +8,7 @@ namespace contrib {
 
 using namespace runtime;
 
-float* csrmm(int* colptr, int* rowidx, float* values, int N, int K, int C, float* l_a);
+void csrmm_func(int* colptr, int* rowidx, float* values, int N, int K, int C, float* l_a, float* l_c);
 
 }
 }
