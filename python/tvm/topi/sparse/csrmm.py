@@ -124,8 +124,8 @@ def csrmm_libxsmm(data, indices, indptr, weight, bias=None, out_dtype='float32')
 
     #matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
 
-    #return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
-    return sparse.csrmatmul(indices, indptr, data, M, K, N, weight)
+    return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
+    #return sparse.csrmatmul(indices, indptr, data, M, K, N, weight)
     #return sparse.csrmatmul(indptr_ptr, indices_ptr, data_ptr, M, K, N, weight_ptr)
 
 def csrmm(a, b, c=None):
