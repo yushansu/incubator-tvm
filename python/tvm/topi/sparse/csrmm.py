@@ -59,7 +59,9 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
     M = simplify(indptr.shape[0]-1)
     _, N = weight.shape
     print(indptr[0])
+    print(data)
     def csrmm_default_ir(data, indices, indptr, weight, out):
+        print(data)
         """define ir for csrmm"""
         irb = tvm.tir.ir_builder.create()
         data_ptr = irb.buffer_ptr(data)
@@ -69,6 +71,10 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
         out_ptr = irb.buffer_ptr(out)
         M = simplify(indptr.shape[0]-1)
         _, N = weight.shape
+
+        for i in range(3):
+            print(data_ptr[i])
+
         with irb.for_range(0, N, for_type="vectorize", name='n') as n:
             with irb.for_range(0, M, for_type="parallel", name='row') as row:
                 dot = irb.allocate('float32', (1,), name='dot', scope='local')
@@ -98,35 +104,30 @@ def csrmm_libxsmm(data, indices, indptr, weight, bias=None, out_dtype='float32')
         and len(weight.shape) == 2, "only support 2-dim csrmm"
     assert isinstance(weight, te.tensor.Tensor), \
         "weight matrix is assumed to be tvm.te.Tensor, but weight is `%s`" % (type(weight))
-    #if bias is not None:
-    #    assert len(bias.shape) == 1
-    # irb = tvm.tir.ir_builder.create()
-    # data_ptr = irb.buffer_ptr(data)
+
+    print(data)
+    #irb = tvm.tir.ir_builder.create()
+    #data_ptr = irb.buffer_ptr(data)
     # indices_ptr = irb.buffer_ptr(indices)
     # indptr_ptr = irb.buffer_ptr(indptr)
     # weight_ptr = irb.buffer_ptr(weight)
     # out_ptr = irb.buffer_ptr(out)
-
     M = simplify(indptr.shape[0]-1)
     K, N = weight.shape
 
-    # print("data")
-    # print(data.shape)
+    print("hello from csrmm.py")
+    print(data)
+    print(indices)
+    print(indptr)
+    print(M)
+    print(K)
+    print(N)
+    print(weight)
 
-    # print("indices")
-    # print(indices.shape)
 
-    # print("indptr")
-    # print(indptr.shape)
-
-    # for i in range(10):
-    #   print(indptr_ptr[i])
-
-    #matmul = tvm._ffi.get_global_func("tvm.contrib.sparse.csrmm")
-
-    return sparse.csrmatmul(data, indices, indptr, M, K, N, weight)
-    #return sparse.csrmatmul(indices, indptr, data, M, K, N, weight)
-    #return sparse.csrmatmul(indptr_ptr, indices_ptr, data_ptr, M, K, N, weight_ptr)
+    return te.extern((M, N),
+            [indptr, indices, data, weight], 
+            lambda ins, outs: tvm.tir.call_packed("tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], ins[3], outs[0], M, K, N), name="C", dtype="float32")
 
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,

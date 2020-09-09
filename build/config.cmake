@@ -126,8 +126,10 @@ set(USE_MICRO_STANDALONE_RUNTIME OFF)
 # - ON: enable llvm with cmake's find search
 # - OFF: disable llvm
 # - /path/to/llvm-config: enable specific LLVM when multiple llvm-dev is available.
-# set(USE_LLVM OFF)
-set(USE_LLVM /home/ubuntu/clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/llvm-config)
+#set(USE_LLVM OFF)
+#set(USE_LLVM ON)
+set(USE_LLVM /usr/lib/llvm-9/bin/llvm-config)
+# set(USE_LLVM /home/ubuntu/clang+llvm-10.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/llvm-config)
 
 #---------------------------------------------
 # Contrib libraries
@@ -155,7 +157,7 @@ set(USE_OPENMP none)
 # Whether use contrib.random in runtime
 set(USE_RANDOM ON)
 
-# Whether use contrib.random in runtime
+# Whether use contrib.sparse in runtime
 set(USE_SPARSE ON)
 
 # Whether use NNPack
