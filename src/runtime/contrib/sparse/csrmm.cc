@@ -3,10 +3,6 @@
 #include <tvm/runtime/registry.h>
 #include <dlfcn.h>
 
-//extern "C" {
-//#include "csrmm.h"
-//}
-
 namespace tvm {
 namespace contrib {
 
@@ -29,7 +25,6 @@ struct csrmmOp {
             exit(1);
     }
 
-    printf("buffer value: %f\n", values[0]);
     csrmm_func(colptr, rowidx, values, N, K, C, l_a, l_c);
     dlclose(handle);
   }

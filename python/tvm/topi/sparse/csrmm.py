@@ -99,35 +99,18 @@ def csrmm_default(data, indices, indptr, weight, bias=None):
 
 
 def csrmm_libxsmm(data, indices, indptr, weight, bias=None, out_dtype='float32'):
-    # pylint: disable=invalid-name
+
     assert len(data.shape) == 1 and len(indices.shape) == 1 and len(indptr.shape) == 1 \
         and len(weight.shape) == 2, "only support 2-dim csrmm"
     assert isinstance(weight, te.tensor.Tensor), \
         "weight matrix is assumed to be tvm.te.Tensor, but weight is `%s`" % (type(weight))
 
-    print(data)
-    #irb = tvm.tir.ir_builder.create()
-    #data_ptr = irb.buffer_ptr(data)
-    # indices_ptr = irb.buffer_ptr(indices)
-    # indptr_ptr = irb.buffer_ptr(indptr)
-    # weight_ptr = irb.buffer_ptr(weight)
-    # out_ptr = irb.buffer_ptr(out)
     M = simplify(indptr.shape[0]-1)
     K, N = weight.shape
 
-    print("hello from csrmm.py")
-    print(data)
-    print(indices)
-    print(indptr)
-    print(M)
-    print(K)
-    print(N)
-    print(weight)
-
-
     return te.extern((M, N),
             [indptr, indices, data, weight], 
-            lambda ins, outs: tvm.tir.call_packed("tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], ins[3], outs[0], M, K, N), name="C", dtype="float32")
+            lambda ins, outs: tvm.tir.call_packed("tvm.contrib.sparse.csrmm", ins[0], ins[1], ins[2], ins[3], outs[0], N, M, K), name="C", dtype="float32")
 
 def csrmm(a, b, c=None):
     """The `csrmm` routine performs a matrix-matrix operation defined as :math:`C := A*B + C`,
@@ -152,6 +135,3 @@ def csrmm(a, b, c=None):
     #return csrmm_default(a.data, a.indices, a.indptr, b, c)
     return csrmm_libxsmm(a.data, a.indices, a.indptr, b, c)
 
-
-#def csrmm_libxsmm(a, b, c=None):
-#    return sparse.csrmm(a.data, a.indices, a.indptr, b, c)
