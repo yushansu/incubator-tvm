@@ -19,7 +19,8 @@ struct csrmmOp {
     }
 
     void (*csrmm_func)(int*, int*, float*, int, int, int, float*, float*);
-    *(void**) (&csrmm_func) = dlsym(handle, "_Z8jiacsrmmPiS_PfiiiS0_S0_");
+    // *(void**) (&csrmm_func) = dlsym(handle, "_Z8jiacsrmmPiS_PfiiiS0_S0_");
+    *(void**) (&csrmm_func) = dlsym(handle, "csrmm");
         if ((error = dlerror()) != NULL)  {
             fputs(error, stderr);
             exit(1);
